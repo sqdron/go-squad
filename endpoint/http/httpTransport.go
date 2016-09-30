@@ -1,20 +1,20 @@
 package http
-
-import (
-	"context"
-	//"github.com/sqdron/squad/endpoint"
-	//"net"
-	"net/http"
-)
-
-type HttpTransport struct {
-	Options        *Options
-	ctx            context.Context
-	client         *http.Client
-	bufferedStream bool
-}
-
-type serveHandler func(http.ResponseWriter, *http.Request) (int, error)
+//
+//import (
+//	"context"
+//	//"github.com/sqdron/squad/endpoint"
+//	//"net"
+//	"net/http"
+//)
+//
+//type HttpTransport struct {
+//	Options        *Options
+//	ctx            context.Context
+//	client         *http.Client
+//	bufferedStream bool
+//}
+//
+//type serveHandler func(http.ResponseWriter, *http.Request) (int, error)
 
 //
 //func (t *HttpTransport) Listen() <-chan endpoint.Message {

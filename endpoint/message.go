@@ -1,5 +1,5 @@
 package endpoint
 
-type Message struct{
-	content map[string] interface{}
+type Message struct {
+	content map[string]interface{}
 }

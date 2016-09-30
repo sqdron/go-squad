@@ -1,11 +1,16 @@
 package http
 
 import (
-	"github.com/sqdron/go-squad/optionizer"
+	"github.com/sqdron/squad/optionizer"
 )
 
-func (t *HttpTransport) Options() []interface{} {
+type Options struct {
+	Host string
+	Port string
+}
+
+func (t *HttpTransport) Configuratoin() []interface{} {
 	return optionizer.Group("Http Endpoint Configuration",
-		optionizer.NewOption("addr").Short("a").Param("host").Description("Bind to host address"),
-		optionizer.NewOption("port").Short("p").Param("port").Description("Use port for clients"))
+		optionizer.NewOption(&t.Options.Host, "addr").Short("a").Param("host").Description("Bind to host address"),
+		optionizer.NewOption(&t.Options.Port, "port").Short("p").Param("port").Description("Use port for clients"))
 }

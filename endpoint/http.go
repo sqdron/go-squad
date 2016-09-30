@@ -1,23 +1,27 @@
 package endpoint
 
 import (
-	"context"
-	"net/http"
+	"github.com/sqdron/squad/endpoint/http"
 )
 
-type HttpOptions struct {
-	host string
-	port string
-	method string
+func Http() *transport {
+	return NewTransport(&http.HttpTransport{})
 }
 
-type httpEndpoint struct{
-	m Middleware
-	ctx          context.Context
-	client *http.Client
-	options *HttpOptions
-	bufferedStream bool
-}
+//
+//type HttpOptions struct {
+//	host string
+//	port string
+//	method string
+//}
+//
+//type httpEndpoint struct{
+//	m Middleware
+//	ctx          context.Context
+//	client *http.Client
+//	options *HttpOptions
+//	bufferedStream bool
+//}
 
 //
 //func Http(cfg squad.IConfigurator) *EndPoint{
@@ -65,37 +69,36 @@ type httpEndpoint struct{
 //	}
 //}
 
-
 //
 //// ServeHTTP implements http.Handler.
-func (s httpEndpoint) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	//ctx := s.ctx
+//func (s httpEndpoint) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+//ctx := s.ctx
 
-	//for _, f := range s.before {
-	//	ctx = f(ctx, r)
-	//}
+//for _, f := range s.before {
+//	ctx = f(ctx, r)
+//}
 
-	//request, err := s.dec(ctx, r)
-	//if err != nil {
-	//	s.logger.Log("err", err)
-	//	s.errorEncoder(ctx, Error{Domain: DomainDecode, Err: err}, w)
-	//	return
-	//}
+//request, err := s.dec(ctx, r)
+//if err != nil {
+//	s.logger.Log("err", err)
+//	s.errorEncoder(ctx, Error{Domain: DomainDecode, Err: err}, w)
+//	return
+//}
 
-	//response, err := s.e(ctx, request)
-	//if err != nil {
-	//	s.logger.Log("err", err)
-	//	s.errorEncoder(ctx, Error{Domain: DomainDo, Err: err}, w)
-	//	return
-	//}
-	//
-	//for _, f := range s.after {
-	//	ctx = f(ctx, w)
-	//}
-	//
-	//if err := s.enc(ctx, w, response); err != nil {
-	//	s.logger.Log("err", err)
-	//	s.errorEncoder(ctx, Error{Domain: DomainEncode, Err: err}, w)
-	//	return
-	//}
-}
+//response, err := s.e(ctx, request)
+//if err != nil {
+//	s.logger.Log("err", err)
+//	s.errorEncoder(ctx, Error{Domain: DomainDo, Err: err}, w)
+//	return
+//}
+//
+//for _, f := range s.after {
+//	ctx = f(ctx, w)
+//}
+//
+//if err := s.enc(ctx, w, response); err != nil {
+//	s.logger.Log("err", err)
+//	s.errorEncoder(ctx, Error{Domain: DomainEncode, Err: err}, w)
+//	return
+//}
+//}

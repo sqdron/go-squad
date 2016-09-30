@@ -1,36 +1,34 @@
 package endpoint
 
-import (
-	"context"
-)
-
-type MessageHandler func(ctx context.Context, request Message) (response Message, err error)
-
-type EndPoint struct {
-	Transport interface{}
-	publish MessageHandler
-	listen MessageHandler
-
-}
-
-type IEndpoint interface{
-	Publish() chan <- Message
-	Listen() <- chan Message
-}
-
-
-
 //
-//func (s *EndPoint) Use(m Middleware) EndPoint{
-//	return s.transport
+//import (
+//	"context"
+//)
+//
+//type MessageHandler func(ctx context.Context, request Message) (response Message, err error)
+//
+//type EndPoint struct {
+//	Transport interface{}
+//	publish MessageHandler
+//	listen MessageHandler
 //}
-
-
 //
-//type Endpoint func(ctx context.Context, request interface{}) (response interface{}, err error)
+//type IEndpoint interface{
+//	Publish() chan <- Message
+//	Listen() <- chan Message
+//}
 //
-type Middleware func(MessageHandler) MessageHandler
-
+//
+////
+////func (s *EndPoint) Use(m Middleware) EndPoint{
+////	return s.transport
+////}
+//
+//
+////
+////type Endpoint func(ctx context.Context, request interface{}) (response interface{}, err error)
+////
+//type Middleware func(MessageHandler) MessageHandler
 
 //
 //func (m Endpoint) Compose(endpoint Endpoint) Endpoint {

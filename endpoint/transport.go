@@ -1,25 +1,40 @@
 package endpoint
 
-import "github.com/sqdron/go-squad/endpoint/http"
+import "context"
 
 type transport struct {
 	provider interface{}
+	listen   Middleware
 }
 
 type ITransport interface {
-	Options() []interface{}
-	//Decode(data interface{}) Message
-	//Encode(m Message) interface{}
+	Configuratoin() []interface{}
+	//Publish() chan <- Message
+	Listen() <-chan Message
 }
+
+type MessageHandler func(ctx context.Context, request interface{}) (response Message, err error)
+type Middleware func(MessageHandler) MessageHandler
 
 func NewTransport(provider interface{}) *transport {
-	return &transport{provider:provider}
+	return &transport{provider: provider}
 }
 
-func (t *transport) Options() []interface{} {
-	return t.provider.(ITransport).Options()
+func (t *transport) Configuratoin() []interface{} {
+	return t.provider.(ITransport).Configuratoin()
 }
 
-func Http() *transport{
-	return NewTransport(&http.HttpTransport{})
+func (t *transport) Listen() <-chan Message {
+	out := make(chan Message)
+	go func() {
+		defer close(out)
+		for {
+			select {
+			case m := <-t.provider.(ITransport).Listen():
+				out <- t.listen(nil, m)
+			}
+		}
+		t.listen()
+	}()
+	return t.provider.(ITransport).Listen()
 }

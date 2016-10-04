@@ -1,5 +1,8 @@
 package endpoint
 
 type Message struct {
-	content map[string]interface{}
+	ID interface{}
+	Header interface{}
+	Payload interface{}
+	Content map[string]interface{}
 }

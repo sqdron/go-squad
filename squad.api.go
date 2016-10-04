@@ -1,13 +1,45 @@
 package squad
 
-type ApiFunc func()
+import (
+	"fmt"
+)
 
-func (s *squad) Api() ApiFunc
+type Action func(request interface{}) interface{}
+type ApiFunc func(action interface{})
 
-type ApiAction func(request interface{}) interface{}
+type AcceptAction func(ApiFunc)
 
-func (af ApiFunc) Action(path string, action ApiAction){
+type api struct {
+	actions map[string]interface{}
+}
 
+func (s *squad) initAPI() {
+	s.api = &api{actions:make(map[string]interface{})}
+}
+
+func (s *squad) Api(path string) ApiFunc {
+	fmt.Println("Registering route: " + path)
+	_, exist := s.api.actions[path];
+	if (exist) {
+		panic("Api route already exist: " + path)
+	}
+
+	return func(action interface{}) {
+		fmt.Println("Registering action: ")
+		s.api.actions[path] = action
+		listen := s.Endpoint.Listen(path)
+		fmt.Println("starting goroutin: " + path)
+		go func() {
+			for {
+				message := <-listen
+				fmt.Println(message)
+			}
+		}()
+	}
+}
+
+func (af ApiFunc) Action(action interface{}) {
+	af(action)
 }
 
 

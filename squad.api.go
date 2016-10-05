@@ -25,21 +25,12 @@ func (s *squad) Api(path string) ApiFunc {
 	}
 
 	return func(action interface{}) {
-		fmt.Println("Registering action: ")
 		s.api.actions[path] = action
-		listen := s.Endpoint.Listen(path)
-		fmt.Println("starting goroutin: " + path)
-		go func() {
-			for {
-				message := <-listen
-				fmt.Println(message)
-			}
-		}()
+		fmt.Println("Listen...")
+		s.Endpoint.Listen(path, action)
 	}
 }
 
 func (af ApiFunc) Action(action interface{}) {
 	af(action)
 }
-
-

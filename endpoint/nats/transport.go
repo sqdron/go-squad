@@ -4,7 +4,6 @@ import (
 	"github.com/sqdron/squad/endpoint"
 	"github.com/nats-io/nats"
 	"time"
-	"encoding/json"
 	"github.com/sqdron/squad/util"
 )
 
@@ -27,21 +26,13 @@ func (t *natsTransport) Request(subject string, data interface{}) <- chan interf
 	message := &endpoint.Message{
 		ID:util.GenerateString(10),
 		Responce: "resp_" + util.GenerateString(5)}
-
-	d, _ := json.Marshal(data)
-	message.Payload = string(d)
+	message.Payload = data
 	go func() {
 		receiver := make(chan *endpoint.Message)
 		t.connection.BindRecvChan(message.Responce, receiver)
 		select {
 		case response := <-receiver:
-			var respData interface{}
-			err := json.Unmarshal([]byte(response.Payload), &respData)
-			if err != nil {
-				panic(err)
-			}
-
-			result <-respData
+			result <-response.Payload
 		case <-time.After(3 * time.Second):
 		//TODO: Use better way for handdling errors
 			panic("Request timeout error")
@@ -59,18 +50,10 @@ func (t *natsTransport) Listen(subject string, handler interface{}) {
 	go func(){
 		for{
 			message := <- receiver
-			var data interface{}
-			err := json.Unmarshal([]byte(message.Payload), &data)
-			if err != nil {
-				panic(err)
-			}
-			result := message.Apply(handler, data)
+			result := message.Apply(handler, message.Payload)
 			responceMessage := &endpoint.Message{
 				ID:util.GenerateString(10)}
-			//
-
-			d, _ := json.Marshal(result)
-			responceMessage.Payload = string(d)
+			responceMessage.Payload = result
 			sender := make(chan *endpoint.Message)
 			t.connection.BindSendChan(message.Responce, sender)
 			sender <- responceMessage

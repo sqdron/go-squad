@@ -3,7 +3,7 @@ package endpoint
 type Message struct {
 	ID       interface{}
 	Responce string
-	Payload  string
+	Payload  interface{}
 }
 
 //func CreateMessage(data interface{}) *Message {

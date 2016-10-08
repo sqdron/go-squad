@@ -8,6 +8,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
+	"time"
 )
 
 type transport struct {
@@ -28,6 +29,7 @@ type ITransport interface {
 	Subscribe(s string, cb interface{})
 	QueueSubscribe(s string, group string, cb interface{})
 	Request(s string, message interface{}, cb interface{}) error
+	RequestSync(s string, message interface{}) interface{}
 }
 
 func NewTransport(url string) ITransport {
@@ -69,4 +71,18 @@ func (t *transport) Request(s string, message interface{}, cb interface{}) error
 	t.Subscribe(replay, cb)
 	fmt.Printf("Publish to (%s) with reply %s \n", s, replay)
 	return t.connection.PublishRequest(s, replay, data)
+}
+
+func (t *transport) RequestSync(s string, message interface{}) interface{} {
+	data, encodeError := json.Marshal(message)
+	if (encodeError !=nil){
+		panic(encodeError)
+	}
+	fmt.Println(t.connection)
+	res, e := t.connection.Request(s, data, 10*time.Millisecond)
+	if (e != nil){
+		panic(e)
+	}
+
+	return res
 }

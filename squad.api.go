@@ -17,6 +17,7 @@ type ActionFunc func(action interface{})
 type ISquadAPI interface {
 	Route(path string) ActionFunc
 	Request(path string, message interface{}, cb interface{}) error
+	RequestSync(path string, message interface{}) interface{}
 
 	getMetadata() []activation.ActionMeta
 	start(i *activation.ServiceInfo)
@@ -42,6 +43,10 @@ func (api *squadApi) start(i *activation.ServiceInfo) {
 
 func (api *squadApi) Request(path string, message interface{}, cb interface{}) error {
 	return api.transport.Request(path, message, cb)
+}
+
+func (api *squadApi) RequestSync(path string, message interface{}) interface{} {
+	return api.transport.RequestSync(path, message)
 }
 
 func CreateApi(url string) *squadApi {

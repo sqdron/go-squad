@@ -15,14 +15,17 @@ type ActivationOptions struct {
 
 // squad is an isolated micro-service unit. Nobody knows about his existence but it knows about the entire world.
 type squad struct {
-	applicationId string
-	endpoint      string
-	modules       map[string]interface{}
-	Api           ISquadAPI
+	options *ActivationOptions
+	modules map[string]interface{}
+	Api     ISquadAPI
 }
 
 func (s *squad) use(module interface{}) {
 
+}
+
+func (s *squad) Options() *ActivationOptions {
+	return s.options
 }
 
 func Client(config ...string) *squad {
@@ -33,7 +36,7 @@ func Client(config ...string) *squad {
 	opts := &ActivationOptions{}
 	cfg := configurator.New()
 	cfg.ReadFromFile(connectionConfig, opts)
-	client := &squad{applicationId: opts.ApplicationID, endpoint: opts.ApplicationHub}
+	client := &squad{options:opts}
 	client.Api = CreateApi(opts.ApplicationHub)
 	return client
 }

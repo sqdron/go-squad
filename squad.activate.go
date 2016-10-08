@@ -8,14 +8,17 @@ import (
 	"github.com/sqdron/squad/activation"
 )
 
-func (s *squad) Activate() {
+func (s *squad) Activate(cb ...func(activation.ServiceInfo)) {
 	fmt.Println("Activation...")
-
-	act := activation.RequestActivation{ID:s.applicationId, Actions:s.Api.getMetadata()}
+	act := activation.RequestActivation{ID:s.options.ApplicationID, Actions:s.Api.getMetadata()}
 	restartApi := func(info activation.ServiceInfo) bool {
 		fmt.Println("Restart requested")
 		fmt.Println(info)
 		s.Api.start(&info)
+
+		if (len(cb) > 0){
+			cb[0](info)
+		}
 		return true
 	}
 	s.Api.Request("activate", act, restartApi)

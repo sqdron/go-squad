@@ -5,6 +5,11 @@ type RequestActivation struct {
 	Actions []ActionMeta
 }
 
+type ResponceActivation struct {
+	ID string
+	Group string
+}
+
 type ActionMeta struct {
 	Name        string
 	Description string

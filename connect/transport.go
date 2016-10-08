@@ -21,8 +21,7 @@ type requestContext struct {
 func (ctx requestContext) Apply(r interface{}) interface{} {
 	content := []reflect.Value{}
 	content = append(content, reflect.ValueOf(r))
-	var res = reflect.ValueOf(ctx.action).Call(content)[0].Interface()
-	return res
+	return reflect.ValueOf(ctx.action).Call(content)[0].Interface()
 }
 
 type ITransport interface {
@@ -32,9 +31,8 @@ type ITransport interface {
 }
 
 func NewTransport(url string) ITransport {
-
 	nc, e := nats.Connect(url)
-	if (e != nil){
+	if (e != nil) {
 		panic(e)
 	}
 	log.Println("Application started at: " + url)
@@ -46,7 +44,7 @@ func (t *transport) Subscribe(s string, cb interface{}) {
 }
 
 func (t *transport) QueueSubscribe(s string, group string, cb interface{}) {
-	fmt.Println("Subscrive for " + s)
+	fmt.Println("Subscribe for " + s)
 	requestType := reflect.TypeOf(cb).In(0);
 	requestObject := reflect.New(requestType).Elem()
 
@@ -55,7 +53,11 @@ func (t *transport) QueueSubscribe(s string, group string, cb interface{}) {
 	t.connection.QueueSubscribe(s, group, func(m *nats.Msg) {
 		fmt.Printf("Handling message (%s) and reply to %s\n", m.Subject, m.Reply)
 		ctx := &requestContext{action: cb}
-		h(ctx).Apply(m)
+		responce := h(ctx).Apply(m)
+		if (m.Reply != "") {
+			data, _ := json.Marshal(responce)
+			t.connection.Publish(m.Reply, data)
+		}
 	})
 }
 

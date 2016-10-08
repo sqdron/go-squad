@@ -9,7 +9,7 @@ type bcryptHasher struct {
 }
 
 func Bcrypt(cost int) hasher {
-	return hasher{provider:bcryptHasher{Cost:cost}};
+	return hasher{provider: bcryptHasher{Cost: cost}}
 }
 
 func (b bcryptHasher) Hash(password string) string {
@@ -17,9 +17,9 @@ func (b bcryptHasher) Hash(password string) string {
 	if err != nil {
 		panic(err)
 	}
-	return string(result);
+	return string(result)
 }
 
 func (b bcryptHasher) Check(password, hashed string) bool {
-	return bcrypt.CompareHashAndPassword([]byte(hashed), []byte(password)) == nil;
+	return bcrypt.CompareHashAndPassword([]byte(hashed), []byte(password)) == nil
 }

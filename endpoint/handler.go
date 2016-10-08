@@ -1,9 +1,9 @@
 package endpoint
 
 import (
-	"reflect"
-	"fmt"
 	"errors"
+	"fmt"
+	"reflect"
 )
 
 type ApiFunc func(*Message)
@@ -25,18 +25,18 @@ func acceptInputArguments(payload interface{}, action interface{}) []reflect.Val
 	result := []reflect.Value{}
 
 	actionType := actionValue.Type()
-	if (actionType.NumIn() == 0) {
+	if actionType.NumIn() == 0 {
 		return result
 	}
-	if (!payloadValue.IsValid()) {
+	if !payloadValue.IsValid() {
 		panic("Payload is invalid!")
 	}
-	if (actionType.NumIn() > 1) {
+	if actionType.NumIn() > 1 {
 		panic("Parameters count mismatch!")
 	}
 
 	params := payload.(map[string]interface{})
-	if (actionType.In(0).Kind() == reflect.Struct) {
+	if actionType.In(0).Kind() == reflect.Struct {
 		instance := reflect.New(actionType.In(0))
 		FillStruct(instance, params)
 		return append(result, instance.Elem())

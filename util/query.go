@@ -1,4 +1,4 @@
-package query
+package util
 
 type Grouped map[interface{}][]interface{}
 

@@ -1,10 +1,10 @@
 package nats
 
 import (
-	"github.com/sqdron/squad/endpoint"
 	"github.com/nats-io/nats"
-	"time"
+	"github.com/sqdron/squad/endpoint"
 	"github.com/sqdron/squad/util"
+	"time"
 )
 
 type natsTransport struct {
@@ -14,17 +14,17 @@ type natsTransport struct {
 func NatsEndpoint(url string) *endpoint.Endpoint {
 	nc, _ := nats.Connect(url)
 	ec, _ := nats.NewEncodedConn(nc, nats.JSON_ENCODER)
-	return endpoint.NewEndpoint(&natsTransport{connection:ec})
+	return endpoint.NewEndpoint(&natsTransport{connection: ec})
 }
 
 //TODO: refactor this
-func (t *natsTransport) Request(subject string, data interface{}) <- chan interface{} {
+func (t *natsTransport) Request(subject string, data interface{}) <-chan interface{} {
 	result := make(chan interface{})
 	sender := make(chan *endpoint.Message)
 	t.connection.BindSendChan(subject, sender)
 
 	message := &endpoint.Message{
-		ID:util.GenerateString(10),
+		ID:       util.GenerateString(10),
 		Responce: "resp_" + util.GenerateString(5)}
 	message.Payload = data
 	go func() {
@@ -32,9 +32,9 @@ func (t *natsTransport) Request(subject string, data interface{}) <- chan interf
 		t.connection.BindRecvChan(message.Responce, receiver)
 		select {
 		case response := <-receiver:
-			result <-response.Payload
+			result <- response.Payload
 		case <-time.After(3 * time.Second):
-		//TODO: Use better way for handdling errors
+			//TODO: Use better way for handdling errors
 			panic("Request timeout error")
 		}
 	}()
@@ -47,12 +47,12 @@ func (t *natsTransport) Request(subject string, data interface{}) <- chan interf
 func (t *natsTransport) Listen(subject string, handler interface{}) {
 	receiver := make(chan *endpoint.Message)
 	t.connection.BindRecvChan(subject, receiver)
-	go func(){
-		for{
-			message := <- receiver
+	go func() {
+		for {
+			message := <-receiver
 			result := message.Apply(handler, message.Payload)
 			responceMessage := &endpoint.Message{
-				ID:util.GenerateString(10)}
+				ID: util.GenerateString(10)}
 			responceMessage.Payload = result
 			sender := make(chan *endpoint.Message)
 			t.connection.BindSendChan(message.Responce, sender)

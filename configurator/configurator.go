@@ -1,12 +1,12 @@
 package configurator
 
 import (
-	"flag"
-	"strings"
-	"reflect"
-	"io/ioutil"
 	"encoding/json"
+	"flag"
 	"fmt"
+	"io/ioutil"
+	"reflect"
+	"strings"
 )
 
 type Configurator struct {
@@ -33,7 +33,7 @@ func (cfg *Configurator) mapOptions(options interface{}) {
 	}
 }
 
-func (cfg *Configurator) readFromFile(file string, options interface{}) {
+func (cfg *Configurator) ReadFromFile(file string, options interface{}) {
 	data, err := ioutil.ReadFile(file)
 	if err != nil {
 		fmt.Println(err)
@@ -51,7 +51,7 @@ func (cfg *Configurator) ReadFlags(options interface{}) {
 	flag.StringVar(&config, "config", "", "Config file path")
 	cfg.mapOptions(options)
 	flag.Parse()
-	if (config != ""){
-		cfg.readFromFile(config, options)
+	if config != "" {
+		cfg.ReadFromFile(config, options)
 	}
 }

@@ -2,6 +2,7 @@ package squad
 
 import (
 	"github.com/sqdron/squad/configurator"
+	"github.com/sqdron/squad/connect"
 )
 
 type ISquad interface {
@@ -17,6 +18,7 @@ type ActivationOptions struct {
 type squad struct {
 	options *ActivationOptions
 	modules map[string]interface{}
+	Connect connect.ITransport
 	Api     ISquadAPI
 }
 
@@ -30,13 +32,13 @@ func (s *squad) Options() *ActivationOptions {
 
 func Client(config ...string) *squad {
 	connectionConfig := "config.json"
-	if (len(config) > 0) {
+	if len(config) > 0 {
 		connectionConfig = config[0]
 	}
 	opts := &ActivationOptions{}
 	cfg := configurator.New()
 	cfg.ReadFromFile(connectionConfig, opts)
-	client := &squad{options:opts}
-	client.Api = CreateApi(opts.ApplicationHub)
+	client := &squad{options: opts}
+	client.Api = CreateApi()
 	return client
 }

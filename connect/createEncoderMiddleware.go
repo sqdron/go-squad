@@ -19,7 +19,7 @@ func CreateEncoderMiddleware(dataObj interface{}) middleware.Middleware {
 				oPtr = reflect.New(dataType.Elem())
 			}
 			e := json.Unmarshal(msg.Data, oPtr.Interface())
-			if (e != nil) {
+			if e != nil {
 				panic(e)
 			}
 			return next.Apply(oPtr.Elem().Interface())

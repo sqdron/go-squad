@@ -1,13 +1,13 @@
 package connect
 
 import (
-	"github.com/nats-io/nats"
-	"github.com/sqdron/squad/middleware"
-	"reflect"
-	"github.com/sqdron/squad/util"
 	"encoding/json"
 	"fmt"
+	"github.com/nats-io/nats"
+	"github.com/sqdron/squad/middleware"
+	"github.com/sqdron/squad/util"
 	"log"
+	"reflect"
 	"time"
 )
 
@@ -29,12 +29,12 @@ type ITransport interface {
 	Subscribe(s string, cb interface{})
 	QueueSubscribe(s string, group string, cb interface{})
 	Request(s string, message interface{}, cb interface{}) error
-	RequestSync(s string, message interface{}) interface{}
+	RequestSync(s string, message interface{}, timout time.Duration) (interface{}, error)
 }
 
 func NewTransport(url string) ITransport {
 	nc, e := nats.Connect(url)
-	if (e != nil) {
+	if e != nil {
 		panic(e)
 	}
 	log.Println("Application started at: " + url)
@@ -47,7 +47,7 @@ func (t *transport) Subscribe(s string, cb interface{}) {
 
 func (t *transport) QueueSubscribe(s string, group string, cb interface{}) {
 	fmt.Println("Subscribe for " + s)
-	requestType := reflect.TypeOf(cb).In(0);
+	requestType := reflect.TypeOf(cb).In(0)
 	requestObject := reflect.New(requestType).Elem()
 
 	h := middleware.ApplyMiddleware(CreateEncoderMiddleware(requestObject.Interface()))
@@ -56,7 +56,7 @@ func (t *transport) QueueSubscribe(s string, group string, cb interface{}) {
 		fmt.Printf("Handling message (%s) and reply to %s\n", m.Subject, m.Reply)
 		ctx := &requestContext{action: cb}
 		responce := h(ctx).Apply(m)
-		if (m.Reply != "") {
+		if m.Reply != "" {
 			data, _ := json.Marshal(responce)
 			t.connection.Publish(m.Reply, data)
 		}
@@ -73,16 +73,13 @@ func (t *transport) Request(s string, message interface{}, cb interface{}) error
 	return t.connection.PublishRequest(s, replay, data)
 }
 
-func (t *transport) RequestSync(s string, message interface{}) interface{} {
-	data, encodeError := json.Marshal(message)
-	if (encodeError !=nil){
-		panic(encodeError)
-	}
-	fmt.Println(t.connection)
-	res, e := t.connection.Request(s, data, 10*time.Millisecond)
+func (t *transport) RequestSync(s string, message interface{}, timout time.Duration) (interface{}, error) {
+	fmt.Print("Submit activation data: ")
+	fmt.Println(message)
+	data, _ := json.Marshal(message)
+	msg, e := t.connection.Request(s, data, timout)
 	if (e != nil){
-		panic(e)
+		return nil, e
 	}
-
-	return res
+	return msg.Data, nil
 }

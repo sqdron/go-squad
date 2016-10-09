@@ -2,32 +2,35 @@ package squad
 
 import (
 	"fmt"
+	"github.com/sqdron/squad/activation"
+	"github.com/sqdron/squad/connect"
 	"os"
 	"os/signal"
 	"sync"
-	"github.com/sqdron/squad/activation"
 )
 
 func (s *squad) Activate(cb ...func(activation.ServiceInfo)) {
 	fmt.Println("Activation...")
-	act := activation.RequestActivation{ID:s.options.ApplicationID, Actions:s.Api.getMetadata()}
+	s.Connect = connect.NewTransport(s.options.ApplicationHub)
+
+	act := activation.RequestActivation{ID: s.options.ApplicationID, Actions: s.Api.getMetadata()}
 	restartApi := func(info activation.ServiceInfo) bool {
 		fmt.Println("Restart requested")
 		fmt.Println(info)
 		s.Api.start(&info)
 
-		if (len(cb) > 0){
+		if len(cb) > 0 {
 			cb[0](info)
 		}
 		return true
 	}
-	s.Api.Request("activate", act, restartApi)
+	s.Connect.Request("activate", act, restartApi)
 	s.start()
 }
 
 func (s *squad) RunDetached() {
 	fmt.Println("Running detached...")
-	s.Api.start(&activation.ServiceInfo{Group:""})
+	s.Api.start(&activation.ServiceInfo{Group: "", Endpoint: s.options.ApplicationHub})
 	s.start()
 }
 
@@ -50,4 +53,3 @@ func (s *squad) start() {
 	}()
 	wg.Wait()
 }
-

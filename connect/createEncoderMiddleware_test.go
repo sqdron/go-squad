@@ -1,12 +1,12 @@
 package connect
 
 import (
+	"encoding/json"
 	"fmt"
 	"github.com/nats-io/nats"
 	. "github.com/smartystreets/goconvey/convey"
 	"github.com/sqdron/squad/middleware"
 	"testing"
-	"encoding/json"
 )
 
 type testRequest struct {

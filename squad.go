@@ -31,7 +31,7 @@ func (s *squad) Options() *ActivationOptions {
 }
 
 func Client(config ...string) *squad {
-	connectionConfig := "config.json"
+	connectionConfig := "connect.json"
 	if len(config) > 0 {
 		connectionConfig = config[0]
 	}

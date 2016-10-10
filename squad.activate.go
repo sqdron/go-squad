@@ -7,18 +7,16 @@ import (
 	"os"
 	"os/signal"
 	"sync"
+	"log"
 )
 
 func (s *squad) Activate(cb ...func(activation.ServiceInfo)) {
-	fmt.Println("Activation...")
 	s.Connect = connect.NewTransport(s.options.ApplicationHub)
 
 	act := activation.RequestActivation{ID: s.options.ApplicationID, Actions: s.Api.getMetadata()}
 	restartApi := func(info activation.ServiceInfo) bool {
-		fmt.Println("Restart requested")
-		fmt.Println(info)
+		log.Println("Activation complited!")
 		s.Api.start(&info)
-
 		if len(cb) > 0 {
 			cb[0](info)
 		}
@@ -35,7 +33,6 @@ func (s *squad) RunDetached() {
 }
 
 func (s *squad) start() {
-	fmt.Println("Starting...")
 	c := make(chan os.Signal, 1)
 	signal.Notify(c, os.Interrupt)
 	wg := sync.WaitGroup{}

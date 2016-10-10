@@ -34,12 +34,6 @@ func (cfg *Configurator) mapOptions(options interface{}) {
 }
 
 func (cfg *Configurator) ReadFromFile(file string, options interface{}) {
-
-	files, _ := ioutil.ReadDir("./")
-	for _, f := range files {
-		fmt.Println(f.Name())
-	}
-
 	data, err := ioutil.ReadFile(file)
 	if err != nil {
 		fmt.Println(err)

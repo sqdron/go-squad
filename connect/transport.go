@@ -2,13 +2,13 @@ package connect
 
 import (
 	"encoding/json"
-	"fmt"
 	"github.com/nats-io/nats"
 	"github.com/sqdron/squad/middleware"
 	"github.com/sqdron/squad/util"
 	"log"
 	"reflect"
 	"time"
+	"fmt"
 )
 
 type transport struct {
@@ -37,7 +37,7 @@ func NewTransport(url string) ITransport {
 	if e != nil {
 		panic(e)
 	}
-	log.Println("Application started at: " + url)
+	log.Println("Nats client started at: " + url)
 	return &transport{connection: nc}
 }
 
@@ -46,39 +46,40 @@ func (t *transport) Subscribe(s string, cb interface{}) {
 }
 
 func (t *transport) QueueSubscribe(s string, group string, cb interface{}) {
-	fmt.Println("Subscribe for " + s)
 	requestType := reflect.TypeOf(cb).In(0)
 	requestObject := reflect.New(requestType).Elem()
 
 	h := middleware.ApplyMiddleware(CreateEncoderMiddleware(requestObject.Interface()))
 
 	t.connection.QueueSubscribe(s, group, func(m *nats.Msg) {
-		fmt.Printf("Handling message (%s) and reply to %s\n", m.Subject, m.Reply)
 		ctx := &requestContext{action: cb}
 		responce := h(ctx).Apply(m)
 		if m.Reply != "" {
-			data, _ := json.Marshal(responce)
+			var data []byte
+			switch responce.(type) {
+			default:
+				data, _ = json.Marshal(responce)
+			case []byte:
+				data = responce.([]byte)
+			}
+			fmt.Println(data)
 			t.connection.Publish(m.Reply, data)
 		}
 	})
 }
 
 func (t *transport) Request(s string, message interface{}, cb interface{}) error {
-	fmt.Print("Submit activation data: ")
-	fmt.Println(message)
 	data, _ := json.Marshal(message)
 	replay := "reply_" + util.GenerateString(10)
 	t.Subscribe(replay, cb)
-	fmt.Printf("Publish to (%s) with reply %s \n", s, replay)
 	return t.connection.PublishRequest(s, replay, data)
 }
 
 func (t *transport) RequestSync(s string, message interface{}, timout time.Duration) (interface{}, error) {
-	fmt.Print("Submit activation data: ")
-	fmt.Println(message)
 	data, _ := json.Marshal(message)
 	msg, e := t.connection.Request(s, data, timout)
-	if (e != nil){
+	fmt.Println(msg)
+	if (e != nil) {
 		return nil, e
 	}
 	return msg.Data, nil

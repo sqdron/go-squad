@@ -54,17 +54,9 @@ func (t *transport) RequestSync(s string, message interface{}, timout time.Durat
 func (t *transport) QueueSubscribe(s string, group string, cb interface{}) {
 
 	t.connection.QueueSubscribe(s, group, func(m *nats.Msg) {
-		result, _ := dispatchMessage(s, m.Data, cb)
+		result, _ := unmarshalMessage(s, m.Data, cb)
 		if m.Reply != "" {
-			var data []byte = []byte{}
-			if result != nil {
-				switch result.(type) {
-				default:
-					data, _ = json.Marshal(result)
-				case []byte:
-					data = result.([]byte)
-				}
-			}
+			data, _ := marshalMessage(result)
 			t.connection.Publish(m.Reply, data)
 		}
 	})

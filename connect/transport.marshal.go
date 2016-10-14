@@ -7,7 +7,20 @@ import (
 	"reflect"
 )
 
-func dispatchMessage(subject string, data []byte, action interface{}) (interface{}, error) {
+func marshalMessage(obj interface{}) ([]byte, error) {
+	if obj == nil {
+		return nil, nil
+	}
+
+	switch obj.(type) {
+	default:
+		return json.Marshal(obj)
+	case []byte:
+		return obj.([]byte), nil
+	}
+}
+
+func unmarshalMessage(subject string, data []byte, action interface{}) (interface{}, error) {
 	actionType := reflect.TypeOf(action)
 	arguments := []reflect.Value{}
 	numOut := actionType.NumOut()

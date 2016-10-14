@@ -16,7 +16,7 @@ type testMessage struct {
 func Test_Dispatch_Message_General(t *testing.T) {
 	Convey("Dispatch Message: ", t, func() {
 		Convey("General Case", func() {
-			res, e := unmarshalMessage("subj1", prepareMessageData(), func(r testMessage) (interface{}, error) {
+			res, e := applyMessage("subj1", prepareMessageData(), func(r testMessage) (interface{}, error) {
 				return r.Param2, nil
 			})
 			So(e, should.BeNil)
@@ -24,7 +24,7 @@ func Test_Dispatch_Message_General(t *testing.T) {
 		})
 
 		Convey("Empty result", func() {
-			res, e := unmarshalMessage("subj1", prepareMessageData(), func(r testMessage) {
+			res, e := applyMessage("subj1", prepareMessageData(), func(r testMessage) {
 				fmt.Println(r)
 			})
 			So(e, should.BeNil)
@@ -32,7 +32,7 @@ func Test_Dispatch_Message_General(t *testing.T) {
 		})
 
 		Convey("Empty Message", func() {
-			res, e := unmarshalMessage("subj1", prepareMessageData(), func() int {
+			res, e := applyMessage("subj1", prepareMessageData(), func() int {
 				return 42
 			})
 			So(e, should.BeNil)
@@ -40,7 +40,7 @@ func Test_Dispatch_Message_General(t *testing.T) {
 		})
 
 		Convey("General Case With Error", func() {
-			_, e := unmarshalMessage("subj1", prepareMessageData(), func(r testMessage) (interface{}, error) {
+			_, e := applyMessage("subj1", prepareMessageData(), func(r testMessage) (interface{}, error) {
 				return nil, errors.New("Some error")
 			})
 			fmt.Println(e)
@@ -48,14 +48,14 @@ func Test_Dispatch_Message_General(t *testing.T) {
 		})
 
 		Convey("Too many inputs", func() {
-			_, e := unmarshalMessage("subj1", prepareMessageData(), func(r testMessage, extra string) (interface{}, error) {
+			_, e := applyMessage("subj1", prepareMessageData(), func(r testMessage, extra string) (interface{}, error) {
 				return 5, errors.New("Some error")
 			})
 			So(e, should.NotBeNil)
 		})
 
 		Convey("Too many outputs", func() {
-			_, e := unmarshalMessage("subj1", prepareMessageData(), func(r testMessage, extra string) (interface{}, error, int) {
+			_, e := applyMessage("subj1", prepareMessageData(), func(r testMessage, extra string) (interface{}, error, int) {
 				return 5, errors.New("Some error"), 1
 			})
 			So(e, should.NotBeNil)

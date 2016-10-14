@@ -3,7 +3,6 @@ package connect
 import (
 	"encoding/json"
 	"golang.org/x/crypto/openpgp/errors"
-	"log"
 	"reflect"
 )
 
@@ -20,7 +19,7 @@ func marshalMessage(obj interface{}) ([]byte, error) {
 	}
 }
 
-func unmarshalMessage(subject string, data []byte, action interface{}) (interface{}, error) {
+func applyMessage(subject string, data []byte, action interface{}) (interface{}, error) {
 	actionType := reflect.TypeOf(action)
 	arguments := []reflect.Value{}
 	numOut := actionType.NumOut()
@@ -31,7 +30,6 @@ func unmarshalMessage(subject string, data []byte, action interface{}) (interfac
 	if numOut > 2 {
 		return nil, errors.SignatureError("Too many outputs for action " + subject)
 	}
-	log.Println("")
 	if actionType.NumIn() == 1 {
 		inType := actionType.In(0)
 		var oPtr reflect.Value
@@ -45,7 +43,6 @@ func unmarshalMessage(subject string, data []byte, action interface{}) (interfac
 		}
 
 		e := json.Unmarshal(data, oPtr.Interface())
-		log.Println(oPtr.Elem().Interface())
 		if e != nil {
 			return nil, e
 		}

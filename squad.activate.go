@@ -11,9 +11,9 @@ import (
 )
 
 func (s *squad) Activate(cb ...func(activation.ServiceInfo)) {
-	s.Connect = connect.NatsTransport(s.options.ApplicationHub)
+	s.Connect = connect.NatsTransport(s.options.Hub)
 
-	act := activation.RequestActivation{ID: s.options.ApplicationID, Actions: s.Api.getMetadata()}
+	act := activation.RequestActivation{ID: s.options.Name, Actions: s.Api.getMetadata()}
 	restartApi := func(info activation.ServiceInfo) bool {
 		log.Println("Activation complited!")
 		s.Api.start(&info)
@@ -28,7 +28,7 @@ func (s *squad) Activate(cb ...func(activation.ServiceInfo)) {
 
 func (s *squad) RunDetached() {
 	fmt.Println("Running detached...")
-	s.Api.start(&activation.ServiceInfo{Group: "", Endpoint: s.options.ApplicationHub})
+	s.Api.start(&activation.ServiceInfo{Group: "", Endpoint: s.options.Hub})
 	s.start()
 }
 

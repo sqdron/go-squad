@@ -1,0 +1,72 @@
+package connect
+
+import (
+	"encoding/json"
+	"errors"
+	"fmt"
+	"github.com/smartystreets/assertions/should"
+	. "github.com/smartystreets/goconvey/convey"
+	"testing"
+)
+
+type testMessage struct {
+	Param1 string
+	Param2 int
+}
+
+func Test_Dispatch_Message_General(t *testing.T) {
+	Convey("Dispatch Message: ", t, func() {
+		Convey("General Case", func() {
+			res, e := dispatchMessage("subj1", prepareMessageData(), func(r testMessage) (interface{}, error) {
+				return r.Param2, nil
+			})
+			So(e, should.BeNil)
+			So(res, should.Equal, 42)
+		})
+
+		Convey("Empty result", func() {
+			res, e := dispatchMessage("subj1", prepareMessageData(), func(r testMessage) {
+				fmt.Println(r)
+			})
+			So(e, should.BeNil)
+			So(res, should.BeNil)
+		})
+
+		Convey("Empty Message", func() {
+			res, e := dispatchMessage("subj1", prepareMessageData(), func() int {
+				return 42
+			})
+			So(e, should.BeNil)
+			So(res, should.Equal, 42)
+		})
+
+		Convey("General Case With Error", func() {
+			_, e := dispatchMessage("subj1", prepareMessageData(), func(r testMessage) (interface{}, error) {
+				return nil, errors.New("Some error")
+			})
+			fmt.Println(e)
+			So(e.Error(), should.Equal, "Some error")
+		})
+
+		Convey("Too many inputs", func() {
+			_, e := dispatchMessage("subj1", prepareMessageData(), func(r testMessage, extra string) (interface{}, error) {
+				return 5, errors.New("Some error")
+			})
+			So(e, should.NotBeNil)
+		})
+
+		Convey("Too many outputs", func() {
+			_, e := dispatchMessage("subj1", prepareMessageData(), func(r testMessage, extra string) (interface{}, error, int) {
+				return 5, errors.New("Some error"), 1
+			})
+			So(e, should.NotBeNil)
+		})
+	})
+}
+
+func prepareMessageData() []byte {
+	res, _ := json.Marshal(&testMessage{
+		Param1: "test data",
+		Param2: 42})
+	return res
+}

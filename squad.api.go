@@ -9,14 +9,16 @@ import (
 type squadApi struct {
 	transport connect.ITransport
 	actions   map[string]interface{}
+	requests  map[string]interface{}
 }
 
 type EndpointFunc func(interface{})
 type ActionFunc func(action interface{})
+type RequestFunc func(message interface{})
 
 type ISquadAPI interface {
 	Route(path string) ActionFunc
-	Request(path string, message interface{}, cb interface{}) error
+	Request(path string) RequestFunc
 	//RequestSync(path string, message interface{}) interface{}
 
 	getMetadata() []activation.ActionMeta
@@ -29,29 +31,36 @@ func (api *squadApi) Route(path string) ActionFunc {
 	}
 }
 
+func (api *squadApi) Request(path string) RequestFunc {
+	return func(request interface{}) {
+		api.requests[path] = request
+	}
+}
+
 func (af ActionFunc) Action(action interface{}) {
 	af(action)
 }
 
+func (rf RequestFunc) Submit(message interface{}) {
+	rf(message)
+}
+
 func (api *squadApi) start(i *activation.ServiceInfo) {
-	api.transport = connect.NewTransport(i.Endpoint)
+	api.transport = connect.NatsTransport(i.Endpoint)
 	for path, action := range api.actions {
 		func(info *activation.ServiceInfo) {
 			api.transport.QueueSubscribe(path, info.Group, action)
 		}(i)
 	}
+	for path, request := range api.requests {
+		func(info *activation.ServiceInfo) {
+			api.transport.Publish(path, request)
+		}(i)
+	}
 }
-
-func (api *squadApi) Request(path string, message interface{}, cb interface{}) error {
-	return api.transport.Request(path, message, cb)
-}
-
-//func (api *squadApi) RequestSync(path string, message interface{}) interface{} {
-//	return api.transport.RequestSync(path, message)
-//}
 
 func CreateApi() *squadApi {
-	return &squadApi{actions: make(map[string]interface{})}
+	return &squadApi{actions: make(map[string]interface{}), requests: make(map[string]interface{})}
 }
 
 func (api *squadApi) getMetadata() []activation.ActionMeta {
@@ -62,10 +71,15 @@ func (api *squadApi) getMetadata() []activation.ActionMeta {
 		aType := reflect.TypeOf(action)
 		for i := 0; i < aType.NumIn(); i++ {
 			inType := aType.In(i)
+			if inType.Kind() == reflect.Ptr {
+				inType = inType.Elem()
+			}
 			am.InputType = inType.Name()
-			for f := 0; f < inType.NumField(); f++ {
-				field := inType.Field(f)
-				am.Input = append(am.Input, activation.ParamMeta{Name: field.Name, Type: field.Type.Name()})
+			if inType.Kind() == reflect.Struct {
+				for f := 0; f < inType.NumField(); f++ {
+					field := inType.Field(f)
+					am.Input = append(am.Input, activation.ParamMeta{Name: field.Name, Type: field.Type.Name()})
+				}
 			}
 		}
 

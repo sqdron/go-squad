@@ -4,14 +4,14 @@ import (
 	"fmt"
 	"github.com/sqdron/squad/activation"
 	"github.com/sqdron/squad/connect"
+	"log"
 	"os"
 	"os/signal"
 	"sync"
-	"log"
 )
 
 func (s *squad) Activate(cb ...func(activation.ServiceInfo)) {
-	s.Connect = connect.NewTransport(s.options.ApplicationHub)
+	s.Connect = connect.NatsTransport(s.options.ApplicationHub)
 
 	act := activation.RequestActivation{ID: s.options.ApplicationID, Actions: s.Api.getMetadata()}
 	restartApi := func(info activation.ServiceInfo) bool {

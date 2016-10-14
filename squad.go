@@ -3,7 +3,6 @@ package squad
 import (
 	"github.com/sqdron/squad/configurator"
 	"github.com/sqdron/squad/connect"
-	"fmt"
 )
 
 type ISquad interface {
@@ -30,13 +29,14 @@ func (s *squad) Options() *ActivationOptions {
 	return s.options
 }
 
-func Client() *squad {
-
+func Client(optins ...interface{}) *squad {
 	opts := &ActivationOptions{}
 	cfg := configurator.New()
-	cfg.ReadFlags(opts)
-	fmt.Println(opts.Hub)
-
+	cfg.MapOptions(opts)
+	for _, o := range optins{
+		cfg.MapOptions(o)
+	}
+	cfg.ReadOptions()
 	client := &squad{options: opts}
 	client.Api = CreateApi()
 	return client

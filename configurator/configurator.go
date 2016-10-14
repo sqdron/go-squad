@@ -46,12 +46,17 @@ func (cfg *Configurator) ReadFromFile(file string, options interface{}) {
 	}
 }
 
-func (cfg *Configurator) ReadFlags(options interface{}) {
-	config := ""
-	flag.StringVar(&config, "config", "", "Config file path")
+func (cfg *Configurator) MapOptions(options interface{}) {
+	//flag.StringVar(&config, "config", "", "Config file path")
 	cfg.mapOptions(options)
+	//if config != "" {
+	//	cfg.ReadFromFile(config, options)
+	//}
+}
+
+func (cfg *Configurator) ReadOptions() {
 	flag.Parse()
-	if config != "" {
-		cfg.ReadFromFile(config, options)
-	}
+	//if config != "" {
+	//	cfg.ReadFromFile(config, options)
+	//}
 }

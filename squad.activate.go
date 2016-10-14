@@ -11,6 +11,7 @@ import (
 )
 
 func (s *squad) Activate(cb ...func(activation.ServiceInfo)) {
+	fmt.Println(s.options.Hub)
 	s.Connect = connect.NatsTransport(s.options.Hub)
 
 	act := activation.RequestActivation{ID: s.options.Name, Actions: s.Api.getMetadata()}

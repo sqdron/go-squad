@@ -51,7 +51,6 @@ func unmarshalMessage(subject string, data []byte, action interface{}) (interfac
 		}
 	}
 
-	//log.Println(arguments)
 	result := reflect.ValueOf(action).Call(arguments)
 	switch numOut {
 	case 1:

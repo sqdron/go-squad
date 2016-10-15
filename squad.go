@@ -33,7 +33,7 @@ func Client(optins ...interface{}) *squad {
 	opts := &ActivationOptions{}
 	cfg := configurator.New()
 	cfg.MapOptions(opts)
-	for _, o := range optins{
+	for _, o := range optins {
 		cfg.MapOptions(o)
 	}
 	cfg.ReadOptions()

@@ -60,6 +60,15 @@ func Test_Dispatch_Message_General(t *testing.T) {
 			})
 			So(e, should.NotBeNil)
 		})
+
+		Convey("Message is string", func() {
+			m, _ := marshalMessage("test message")
+			res, e := applyMessage("subj1", m, func(r string) (string, error) {
+				return r, errors.New("Some error")
+			})
+			So(e, should.NotBeNil)
+			So(res, should.Equal, "test message")
+		})
 	})
 }
 

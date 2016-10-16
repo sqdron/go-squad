@@ -57,7 +57,10 @@ func (t *transport) QueueSubscribe(s string, group string, cb interface{}) {
 			log.Println(e)
 		}
 		if m.Reply != "" {
-			data, _ := marshalMessage(result)
+			data, e := marshalMessage(result)
+			if (e != nil){
+				log.Fatal(e)
+			}
 			t.connection.Publish(m.Reply, data)
 		}
 	})

@@ -10,7 +10,6 @@ func marshalMessage(obj interface{}) ([]byte, error) {
 	if obj == nil {
 		return nil, nil
 	}
-
 	switch obj.(type) {
 	default:
 		return json.Marshal(obj)
@@ -19,16 +18,16 @@ func marshalMessage(obj interface{}) ([]byte, error) {
 	}
 }
 
-func applyMessage(subject string, data []byte, action interface{}) (interface{}, error) {
+func applyMessage(data []byte, action interface{}) (interface{}, error) {
 	actionType := reflect.TypeOf(action)
 	arguments := []reflect.Value{}
 	numOut := actionType.NumOut()
 
 	if actionType.NumIn() > 1 {
-		return nil, errors.SignatureError("Too many input arguments for action " + subject)
+		return nil, errors.SignatureError("Too many input arguments for action")
 	}
 	if numOut > 2 {
-		return nil, errors.SignatureError("Too many outputs for action " + subject)
+		return nil, errors.SignatureError("Too many outputs for action")
 	}
 	if actionType.NumIn() == 1 {
 		inType := actionType.In(0)

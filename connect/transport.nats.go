@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/nats-io/nats"
-	"github.com/sqdron/squad/util"
 	"log"
 	"time"
 )
@@ -34,10 +33,14 @@ func (t *transport) Publish(s string, message interface{}) error {
 }
 
 func (t *transport) Request(s string, message interface{}, cb interface{}) error {
-	data, _ := json.Marshal(message)
-	replay := "reply_" + util.GenerateString(10)
-	t.Subscribe(replay, cb)
-	return t.connection.PublishRequest(s, replay, data)
+	data, e := marshalMessage(message)
+	msg, e := t.connection.Request(s, data, 3 * time.Second)
+	if e != nil {
+		fmt.Println(e)
+		return  e
+	}
+	_, err := applyMessage(msg.Data, cb)
+	return err
 }
 
 func (t *transport) RequestSync(s string, message interface{}, timout time.Duration) (interface{}, error) {
@@ -52,13 +55,13 @@ func (t *transport) RequestSync(s string, message interface{}, timout time.Durat
 
 func (t *transport) QueueSubscribe(s string, group string, cb interface{}) {
 	t.connection.QueueSubscribe(s, group, func(m *nats.Msg) {
-		result, e := applyMessage(s, m.Data, cb)
+		result, e := applyMessage(m.Data, cb)
 		if e != nil {
 			log.Println(e)
 		}
 		if m.Reply != "" {
 			data, e := marshalMessage(result)
-			if (e != nil){
+			if e != nil {
 				log.Fatal(e)
 			}
 			t.connection.Publish(m.Reply, data)

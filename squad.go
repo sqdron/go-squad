@@ -1,10 +1,10 @@
 package squad
 
 import (
+	"fmt"
 	"github.com/sqdron/squad/configurator"
 	"github.com/sqdron/squad/connect"
 	"github.com/sqdron/squad/service"
-	"fmt"
 	"os"
 	"os/signal"
 )
@@ -48,13 +48,13 @@ func Client(name string, options ...interface{}) *squad {
 	return client
 }
 
-func (s *squad) Run() <- chan bool {
+func (s *squad) Run() <-chan bool {
 	fmt.Println("Run...")
-	if (s.Options.Specification != nil && *s.Options.Specification == true) {
+	if s.Options.Specification != nil && *s.Options.Specification == true {
 		s.register()
 	} else {
 		err := s.activate()
-		if (err == nil) {
+		if err == nil {
 			s.Api.start(s.Instruction)
 			return s.start()
 		}
@@ -62,7 +62,7 @@ func (s *squad) Run() <- chan bool {
 	return nil
 }
 
-func (s *squad) start() <- chan bool {
+func (s *squad) start() <-chan bool {
 	exit := make(chan bool, 1)
 	c := make(chan os.Signal, 1)
 	signal.Notify(c, os.Interrupt)
@@ -74,7 +74,7 @@ func (s *squad) start() <- chan bool {
 			select {
 			case <-c:
 				fmt.Println("Interrupting...")
-			//wg.Done()
+				//wg.Done()
 				s.Api.stop()
 				exit <- true
 				os.Exit(1)

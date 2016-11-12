@@ -1,11 +1,11 @@
 package squad
 
 import (
+	"fmt"
 	"github.com/sqdron/squad/connect"
-	"reflect"
 	"github.com/sqdron/squad/policy"
 	"github.com/sqdron/squad/service"
-	"fmt"
+	"reflect"
 	"strings"
 	"time"
 )
@@ -50,7 +50,6 @@ func (api *squadApi) GetAction(resource string) EndpointFunc {
 //	}
 //}
 
-
 func (api *squadApi) Controller(controller interface{}) {
 	cType := reflect.TypeOf(controller)
 	vType := reflect.ValueOf(controller)
@@ -86,7 +85,7 @@ func (rf RequestFunc) Submit(message interface{}) {
 }
 
 func (api *squadApi) Request(resource string, message interface{}) (interface{}, error) {
-	return api.transport.RequestSync(resource, message, 3 * time.Second)
+	return api.transport.RequestSync(resource, message, 3*time.Second)
 }
 
 func (api *squadApi) start(i *service.Instruction) {
@@ -102,7 +101,7 @@ func (api *squadApi) stop() {
 func CreateApi(transport connect.ITransport) *squadApi {
 	return &squadApi{actions: make(map[string]interface{}),
 		policyMap: make(map[string]*policy.Policy),
-		exit:make(chan bool), transport:transport}
+		exit:      make(chan bool), transport: transport}
 }
 
 func (api *squadApi) getActions() []service.Action {

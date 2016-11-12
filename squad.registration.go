@@ -12,4 +12,3 @@ func (s *squad) register() error {
 	h := hub.HubClient(s.Connect)
 	return h.Register(s.Spec)
 }
-

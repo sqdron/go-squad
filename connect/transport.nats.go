@@ -34,10 +34,10 @@ func (t *transport) Publish(s string, message interface{}) error {
 
 func (t *transport) Request(s string, message interface{}, cb interface{}) error {
 	data, e := marshalMessage(message)
-	msg, e := t.connection.Request(s, data, 3 * time.Second)
+	msg, e := t.connection.Request(s, data, 3*time.Second)
 	if e != nil {
 		fmt.Println(e)
-		return  e
+		return e
 	}
 	_, err := applyMessage(msg.Data, cb)
 	return err

@@ -1,10 +1,10 @@
 package squad
 
 import (
+	"fmt"
 	"github.com/sqdron/squad/configurator"
 	"github.com/sqdron/squad/connect"
 	"github.com/sqdron/squad/hub"
-	"fmt"
 	"os"
 	"os/signal"
 )
@@ -25,26 +25,26 @@ func Hub(options ...interface{}) *hubServer {
 	cfg.ReadOptions()
 	t := connect.NatsTransport(opts.Hub)
 	hubApi := hub.HubApi(t)
-	client := &hubServer{Api:hubApi}
+	client := &hubServer{Api: hubApi}
 	client.Options = opts
 	client.Run = func() {
 		fmt.Println("Run...")
-		if (opts.Specification != nil && *opts.Specification == true) {
+		if opts.Specification != nil && *opts.Specification == true {
 		} else {
 			hubApi.Start()
 			h := hub.HubClient(t)
 			_, err := h.Activate("squad.hub")
-			if (err != nil) {
+			if err != nil {
 				fmt.Errorf("Activation error", err)
 			}
-			<- client.start()
+			<-client.start()
 		}
 	}
 	return client
 }
 
 //TODO: refactor code duplication
-func (s *hubServer) start() <- chan bool {
+func (s *hubServer) start() <-chan bool {
 	exit := make(chan bool, 1)
 	c := make(chan os.Signal, 1)
 	signal.Notify(c, os.Interrupt)
@@ -56,8 +56,8 @@ func (s *hubServer) start() <- chan bool {
 			select {
 			case <-c:
 				fmt.Println("Interrupting...")
-			//wg.Done()
-			//	s.Api.stop()
+				//wg.Done()
+				//	s.Api.stop()
 				exit <- true
 				os.Exit(1)
 			}

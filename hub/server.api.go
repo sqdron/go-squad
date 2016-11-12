@@ -27,5 +27,5 @@ func (api *hubApi) Start() {
 }
 
 func HubApi(t connect.ITransport) *hubApi {
-	return &hubApi{transport:t}
+	return &hubApi{transport: t}
 }

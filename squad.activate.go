@@ -7,9 +7,9 @@ import (
 
 func (s *squad) activate() error {
 	fmt.Println("Activate...")
- 	h := hub.HubClient(s.Connect)
+	h := hub.HubClient(s.Connect)
 	instruction, err := h.Activate(s.Name)
-	if (err != nil){
+	if err != nil {
 		fmt.Errorf("Activation error", err)
 		return err
 	}

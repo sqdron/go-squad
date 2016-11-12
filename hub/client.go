@@ -1,11 +1,11 @@
 package hub
 
 import (
+	"github.com/pkg/errors"
 	"github.com/sqdron/squad/connect"
 	"github.com/sqdron/squad/service"
-	"time"
 	"sync"
-	"github.com/pkg/errors"
+	"time"
 )
 
 type hubClient struct {
@@ -13,11 +13,11 @@ type hubClient struct {
 }
 
 func HubClient(c connect.ITransport) *hubClient {
-	return &hubClient{connect:c}
+	return &hubClient{connect: c}
 }
 
 func (h *hubClient) Register(spec *service.Specification) error {
-	_, err := h.connect.RequestSync(HUB_REGISTER_ENDPOINT, spec, 3 * time.Second)
+	_, err := h.connect.RequestSync(HUB_REGISTER_ENDPOINT, spec, 3*time.Second)
 	return err
 }
 
@@ -27,7 +27,7 @@ func (h *hubClient) Activate(name string) (*service.Instruction, error) {
 	var res *service.Instruction = nil
 	var resError error = nil
 	go func() {
-		resError = h.connect.Request(HUB_ACTIVATE_ENDPOINT, &service.Specification{Name:name}, func(i *service.Instruction) {
+		resError = h.connect.Request(HUB_ACTIVATE_ENDPOINT, &service.Specification{Name: name}, func(i *service.Instruction) {
 			res = i
 			wg.Done()
 		})

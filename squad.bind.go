@@ -1,10 +1,10 @@
 package squad
 
 import (
+	"encoding/json"
+	"fmt"
 	"github.com/sqdron/squad/connect"
 	"time"
-	"fmt"
-	"encoding/json"
 )
 
 type squadBind struct {
@@ -23,22 +23,23 @@ type SquadBinder struct {
 
 type ISquadBinder interface {
 	setInvoker(i InvokerFunc)
-	Invoke(action string, request interface{}, result interface{}) (error)
+	Invoke(action string, request interface{}, result interface{}) error
 	//binder(func())
 }
+
 //
 type ISquadBind interface {
 	ToController(path string, b ISquadBinder) interface{}
 }
 
 func CreateBind(transport connect.ITransport) *squadBind {
-	return &squadBind{transport:transport}
+	return &squadBind{transport: transport}
 }
 
 func (s *squadBind) ToController(path string, b ISquadBinder) interface{} {
 	b.setInvoker(func(action string, request interface{}) (interface{}, error) {
 		subject := path + "." + action
-		res, err := s.transport.RequestSync(subject, request, 3 * time.Second)
+		res, err := s.transport.RequestSync(subject, request, 3*time.Second)
 		fmt.Println("requset error", err)
 		return res, err
 	})
@@ -49,7 +50,7 @@ func (s *SquadBinder) setInvoker(i InvokerFunc) {
 	s.invoker = i
 }
 
-func (s *SquadBinder) Invoke(action string, request interface{}, result interface{}) (error) {
+func (s *SquadBinder) Invoke(action string, request interface{}, result interface{}) error {
 	res, err := s.invoker(action, request)
 	json.Unmarshal(res.([]byte), &result)
 	return err

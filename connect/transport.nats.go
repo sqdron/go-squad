@@ -46,6 +46,7 @@ func (t *transport) Request(s string, message interface{}, cb interface{}) error
 func (t *transport) RequestSync(s string, message interface{}, timout time.Duration) (interface{}, error) {
 	data, e := marshalMessage(message)
 	msg, e := t.connection.Request(s, data, timout)
+	fmt.Println(msg)
 	if e != nil {
 		fmt.Println(e)
 		return nil, e

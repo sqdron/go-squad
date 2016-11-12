@@ -54,8 +54,6 @@ func (api *squadApi) GetAction(resource string) EndpointFunc {
 func (api *squadApi) Controller(controller interface{}) {
 	cType := reflect.TypeOf(controller)
 	vType := reflect.ValueOf(controller)
-	fmt.Println(vType)
-
 	for i := 0; i < cType.NumMethod(); i++ {
 		m := cType.Method(i)
 		route := strings.ToLower(fmt.Sprintf("%s.%s", cType.Elem().Name(), m.Name))
